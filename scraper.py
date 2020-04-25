@@ -42,21 +42,26 @@ def check_price(_url, _price, lowest_price):
     return [converted_price, False]
   return []
 
+def main():
+  data = None
+  f = open(json_file, 'r')
+  data = json.load(f)
+  f.close()
+  for i, product in enumerate(data, start=0):
+    new_price = check_price(
+        product['url'], product["price"], product["lowest_price"])
+    if(len(new_price) != 0):
+      if(new_price[1] == True):
+        data[i]["lowest_price"] = new_price[0]
+      else:
+        data[i]["price"] = new_price[0]
+  f = open(json_file, 'w')
+  json_object = json.dumps(data)
+  f.write(json_object)
+  f.close()
 
-data = None
-f = open(json_file, 'r')
-data = json.load(f)
-f.close()
-for i, product in enumerate(data, start=0):
-  new_price = check_price(
-      product['url'], product["price"], product["lowest_price"])
-  if(len(new_price) != 0):
-    if(new_price[1] == True):
-      data[i]["lowest_price"] = new_price[0]
-    else:
-      data[i]["price"] = new_price[0]
+if __name__ == "__main__":
+    while(true):
+      main()
+      time.sleep(60*5)
 
-f = open(json_file, 'w')
-json_object = json.dumps(data)
-f.write(json_object)
-f.close()
