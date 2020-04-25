@@ -20,11 +20,11 @@ def check_price(_url, _price, lowest_price):
   response = requests.get(_url, headers=headers)
   soup = BeautifulSoup(response.content, 'html.parser')
   soup.encode('utf-8')
-  
+
   if(soup.find(id="priceblock_ourprice") == None):
-    return []
+    return None
   price = soup.find(id="priceblock_ourprice").get_text().replace(
-      ',', '').replace('€', '').replace(' ', '').strip()
+      ',', '').replace('€', '').replace(' ', '').replace(".", "").strip()
   converted_price = int(price)
   if(converted_price < lowest_price):
     obj = json.dumps(
@@ -40,7 +40,8 @@ def check_price(_url, _price, lowest_price):
     telegram = telegram_api_url+obj
     requests.get(telegram, headers=headers)
     return [converted_price, False]
-  return []
+  return None
+
 
 def main():
   data = None
@@ -50,7 +51,7 @@ def main():
   for i, product in enumerate(data, start=0):
     new_price = check_price(
         product['url'], product["price"], product["lowest_price"])
-    if(len(new_price) != 0):
+    if(new_price != None):
       if(new_price[1] == True):
         data[i]["lowest_price"] = new_price[0]
       else:
@@ -60,8 +61,8 @@ def main():
   f.write(json_object)
   f.close()
 
+
 if __name__ == "__main__":
-    while(true):
+    while(True):
       main()
       time.sleep(60*5)
-
