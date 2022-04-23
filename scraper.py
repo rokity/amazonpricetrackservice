@@ -20,10 +20,9 @@ def check_price(_url, _price, lowest_price):
   response = requests.get(_url, headers=headers)
   soup = BeautifulSoup(response.content, 'html.parser')
   soup.encode('utf-8')
-
-  if(soup.find(id="priceblock_ourprice") == None):
+  if(soup.find("span", attrs={'class': 'a-offscreen'}).get_text().strip() == None):
     return None
-  price = soup.find(id="priceblock_ourprice").get_text().replace(
+  price = soup.find("span", attrs={'class': 'a-offscreen'}).get_text().replace(
       ',', '').replace('€', '').replace(' ', '').replace(".", "").strip()
   converted_price = int(price)
   if(converted_price < lowest_price):
@@ -51,6 +50,7 @@ def main():
   for i, product in enumerate(data, start=0):
     new_price = check_price(
         product['url'], product["price"], product["lowest_price"])
+    print("new_price",new_price)
     if(new_price != None):
       if(new_price[1] == True):
         data[i]["lowest_price"] = new_price[0]
@@ -63,6 +63,5 @@ def main():
 
 
 if __name__ == "__main__":
-    while(True):
-      main()
-      time.sleep(60*5)
+    main()
+      
